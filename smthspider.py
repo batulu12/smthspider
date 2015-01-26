@@ -1,36 +1,39 @@
-__author__ = 'batulu'
 import re, urllib, urllib2, requests, time, datetime, random
 from bs4 import BeautifulSoup
-def get_back_csdn_jifen():
-    headers = {"User-Agent": "    Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0",
-                "Host": "tianjin.jujiaonet.com",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                "Accept-Language": "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3",
-                "Accept-Encoding": "gzip, deflate",
-                "Connection": "keep-alive",
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Referer': 'http://tianjin.jujiaonet.com/xfqxk/6/6_20151122338.html?from=singlemessage&isappinstalled=0',
-                'X-Requested-With': 'XMLHttpRequest'
-    }
+import json
 
+headers = {"User-Agent": " Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0",
+            "Host": "www.newsmth.net",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3",
+            "Accept-Encoding": "gzip, deflate",
+            "Connection": "keep-alive",
+            "Cookie":"Hm_lvt_9c7f4d9b7c00cb5aba2c637c64a41567=1421654832,1421728515,1421827791,1421982989; tma=88525828.4893887.1420332716520.1421901287602.1421982989863.14; tmd=91.88525828.4893887.1420332716520.; nforum-left=00100; left-index=00000000000; main[UTMPUSERID]=batulu12; main[UTMPKEY]=41480197; main[UTMPNUM]=16797; Hm_lpvt_9c7f4d9b7c00cb5aba2c637c64a41567=1422001897; main[PASSWORD]=o%257E%257Fi%252C%250D%2528%257C%257D%2504U%255C%2540uKLB%251E%2529%251D%250A%2523%2509%2508; main[XWJOKE]=hoho; bfd_session_id=bfd_g=b56c782bcb75035d00006ef20011174a54a88f0d; tmc=1.88525828.74332260.1421986459313.1421986459313.1421986459313",
+            "Referer":"http://www.newsmth.net/nForum/",
+            "X-Requested-With":"XMLHttpRequest"
+}
 
-
-f = open('c:\\code\\ip.txt')
-iplist = f.readlines()
-for ip in iplist:
-    session = requests.session()
-    if len(ip) ==0:
-      pass
-    print ip
-    session.proxies = {'http': 'http://'+ip.strip('\r\n')}
-    url = 'http://tianjin.jujiaonet.com/xfqxk/ip.php'
-
-    #payload = {'cid': 6, 'ip': '122.96.59.106:80', 'tid':331}
-    payload = {'cid': 6, 'ip': ip.strip('\r\n'), 'tid':331}
-
+def smthspider(page_url):
+    r = requests.get(page_url,headers=headers)
     try:
-      req = session.post(url, data=payload, headers=headers)
+        print r.json()
+        eval(r.json())
+        soup = BeautifulSoup(r.json()[0]["t"])
     except:
-      print 'error'
+        print 'not json'
+        return
 
-get_back_csdn_jifen()
+
+    uri = soup.a.get("href")
+    if uri.split('/')[2] == 'section':
+        print soup.a.contents
+        nexturi = 'http://www.newsmth.net/nForum/slist.json?uid=guest&root='+'sec-'+uri.split('/')[3]
+        smthspider(nexturi)
+    else:
+        print soup.a.contents
+    nexturi = 'http://www.newsmth.net'+uri
+    smthspider(nexturi)
+    print soup.a
+    print soup.a.get("href")
+    print soup.a.contents
+smthspider('http://www.newsmth.net/nForum/slist.json?uid=guest&root=list-section')
