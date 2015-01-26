@@ -2,7 +2,8 @@ import re, urllib, urllib2, requests, time, datetime, random
 from bs4 import BeautifulSoup
 import json
 
-headers = {"User-Agent": " Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0",
+
+headers = { "User-Agent": " Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0",
             "Host": "www.newsmth.net",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3",
@@ -15,25 +16,26 @@ headers = {"User-Agent": " Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20
 
 def smthspider(page_url):
     r = requests.get(page_url,headers=headers)
-    try:
-        print r.json()
-        eval(r.json())
-        soup = BeautifulSoup(r.json()[0]["t"])
-    except:
-        print 'not json'
-        return
-
-
-    uri = soup.a.get("href")
-    if uri.split('/')[2] == 'section':
-        print soup.a.contents
-        nexturi = 'http://www.newsmth.net/nForum/slist.json?uid=guest&root='+'sec-'+uri.split('/')[3]
-        smthspider(nexturi)
+    if page_url.find('sec') !=-1:
+       print page_url
+       soup = BeautifulSoup(r.json()[0]["t"])
     else:
-        print soup.a.contents
-    nexturi = 'http://www.newsmth.net'+uri
-    smthspider(nexturi)
+       print page_url
+       return
+
+    for item in r.json():
+        soup =  BeautifulSoup(item["t"])
+        uri = soup.a.get("href")
+        if uri.split('/')[2] == 'section':
+            print soup.a.contents[0].encode('utf-8')
+            nexturi = 'http://www.newsmth.net/nForum/slist.json?uid=guest&root='+'sec-'+uri.split('/')[3]
+            smthspider(nexturi)
+        else:
+            print soup.a.contents[0].encode('utf-8')
+            nexturi = 'http://www.newsmth.net'+uri
+            smthspider(nexturi)
     print soup.a
     print soup.a.get("href")
-    print soup.a.contents
+    print soup.a.contents[0].encode('utf-8')
 smthspider('http://www.newsmth.net/nForum/slist.json?uid=guest&root=list-section')
+#smthspider('http://www.newsmth.net/nForum/slist.json?uid=guest&root=sec-0')
