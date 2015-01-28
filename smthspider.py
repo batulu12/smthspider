@@ -54,4 +54,7 @@ def smthspider(page_url,boardname):
     #print soup.a.contents[0].encode('utf-8')
 
 smthspider('http://www.newsmth.net/nForum/slist.json?uid=guest&root=list-section','board')
+board_dict = sorted(board_dict.iteritems(),key=lambda d:d[1],reverse = True)
+for k,v in board_dict.items():
+    print k+' '+v
 #smthspider('http://www.newsmth.net/nForum/slist.json?uid=guest&root=sec-0')
