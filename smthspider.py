@@ -3,6 +3,7 @@ import re, urllib, urllib2, requests, time, datetime, random
 from bs4 import BeautifulSoup
 import json
 
+board_dict = {}
 
 headers = { "User-Agent": " Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0",
             "Host": "www.newsmth.net",
@@ -14,44 +15,43 @@ headers = { "User-Agent": " Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/2
             "Referer":"http://www.newsmth.net/nForum/",
             "X-Requested-With":"XMLHttpRequest"
 }
-def board(page_url):
+def board(page_url,boardname):
     r = requests.get(page_url,headers=headers)
     soup = BeautifulSoup(r.text)
     #print soup.find_all("div", class_="b-head corner").get("span",class_="n-left").text
     result_list = soup("span", class_="n-left")
     p = re.compile(u"[\u4e00-\u9fa5]+(\d+)[\u4e00-\u9fa5]+")
     str2 = str(result_list).decode('utf8')
-    print str2
     res = p.findall(str2)
     if len(res) > 0:
-      print res[0].encode('utf-8')
+      print boardname + " "+res[0].encode('utf-8')
+      board_dict[boardname] = res[0].encode('utf-8')
     #print soup2.contents[0].encode('utf-8')
 
-def smthspider(page_url):
+def smthspider(page_url,boardname):
     r = requests.get(page_url,headers=headers)
     if page_url.find('sec') !=-1 and len(r.json()) >0:
       soup = BeautifulSoup(r.json()[0]["t"])
     else:
-       print page_url
-       board(page_url)
+       #print page_url
+       board(page_url,boardname)
        return
 
     for item in r.json():
         soup =  BeautifulSoup(item["t"])
         uri = soup.a.get("href")
+        boardname = soup.a.contents[0].encode('utf-8')
         if uri.split('/')[2] == 'section':
-            print soup.a.contents[0].encode('utf-8')
+            #print soup.a.contents[0].encode('utf-8')
             nexturi = 'http://www.newsmth.net/nForum/slist.json?uid=guest&root='+'sec-'+uri.split('/')[3]
-            print 'nexturi'+nexturi
-            smthspider(nexturi)
+            smthspider(nexturi,boardname)
         else:
-            print soup.a.contents[0].encode('utf-8')
+            #print soup.a.contents[0].encode('utf-8')
             nexturi = 'http://www.newsmth.net'+uri
-            print 'nexturi'+nexturi
-            smthspider(nexturi)
-    print soup.a
-    print soup.a.get("href")
-    print soup.a.contents[0].encode('utf-8')
+            smthspider(nexturi,boardname)
+    #print soup.a
+    #print soup.a.get("href")
+    #print soup.a.contents[0].encode('utf-8')
 
-smthspider('http://www.newsmth.net/nForum/slist.json?uid=guest&root=list-section')
+smthspider('http://www.newsmth.net/nForum/slist.json?uid=guest&root=list-section','board')
 #smthspider('http://www.newsmth.net/nForum/slist.json?uid=guest&root=sec-0')
