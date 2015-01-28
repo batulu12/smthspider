@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import re, urllib, urllib2, requests, time, datetime, random
 from bs4 import BeautifulSoup
 import json
@@ -13,6 +14,18 @@ headers = { "User-Agent": " Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/2
             "Referer":"http://www.newsmth.net/nForum/",
             "X-Requested-With":"XMLHttpRequest"
 }
+def board(page_url):
+    r = requests.get(page_url,headers=headers)
+    soup = BeautifulSoup(r.text)
+    #print soup.find_all("div", class_="b-head corner").get("span",class_="n-left").text
+    result_list = soup("span", class_="n-left")
+    p = re.compile(u"[\u4e00-\u9fa5]+(\d+)[\u4e00-\u9fa5]+")
+    str2 = str(result_list).decode('utf8')
+    print str2
+    res = p.findall(str2)
+    if len(res) > 0:
+      print res[0].encode('utf-8')
+    #print soup2.contents[0].encode('utf-8')
 
 def smthspider(page_url):
     r = requests.get(page_url,headers=headers)
@@ -20,6 +33,7 @@ def smthspider(page_url):
       soup = BeautifulSoup(r.json()[0]["t"])
     else:
        print page_url
+       board(page_url)
        return
 
     for item in r.json():
