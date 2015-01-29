@@ -23,13 +23,23 @@ def board(page_url,boardname):
     p = re.compile(u"[\u4e00-\u9fa5]+(\d+)[\u4e00-\u9fa5]+")
     str2 = str(result_list).decode('utf8')
     res = p.findall(str2)
-    if len(res) > 0:
-      print boardname + " "+res[0].encode('utf-8')
-      board_dict[boardname] = res[0].encode('utf-8')
+    if len(res) > 1:
+      now = res[0].encode('utf-8')
+      max = res[1].encode('utf-8')
+      print boardname + "：当前在线人数 "+now+"人，最高在线 "+max+"人"
+      board_dict[boardname] = int(now)
     #print soup2.contents[0].encode('utf-8')
 
 def smthspider(page_url,boardname):
-    r = requests.get(page_url,headers=headers)
+    session = requests.session()
+    session.proxies = {'http': 'http://218.206.83.89:80',
+                       'http': 'http://36.250.74.88:80'}
+    try:
+        r = session.get(page_url,headers=headers,timeout = 1)
+        time.sleep(random.randint(1, 2))
+    except Exception , e:
+        print e
+        return
     if page_url.find('sec') !=-1 and len(r.json()) >0:
       soup = BeautifulSoup(r.json()[0]["t"])
     else:
@@ -54,7 +64,10 @@ def smthspider(page_url,boardname):
     #print soup.a.contents[0].encode('utf-8')
 
 smthspider('http://www.newsmth.net/nForum/slist.json?uid=guest&root=list-section','board')
-board_dict = sorted(board_dict.iteritems(),key=lambda d:d[1],reverse = True)
-for k,v in board_dict.items():
-    print k+' '+v
+#board_dict = {'w':12,'e':3,'d':15}
+#board_dict['r'] = int('127')
+board_list = sorted(board_dict.iteritems(),key=lambda d:d[1],reverse = True)
+#print board_list
+for item in board_list:
+    print "%s %d" % (item[0],item[1])
 #smthspider('http://www.newsmth.net/nForum/slist.json?uid=guest&root=sec-0')
