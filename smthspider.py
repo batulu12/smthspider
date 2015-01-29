@@ -32,10 +32,9 @@ def board(page_url,boardname):
 
 def smthspider(page_url,boardname):
     session = requests.session()
-    session.proxies = {'http': 'http://218.206.83.89:80',
-                       'http': 'http://36.250.74.88:80'}
+    session.proxies = {'http': 'http://218.206.83.89:80'}
     try:
-        r = session.get(page_url,headers=headers,timeout = 1)
+        r = session.get(page_url,headers=headers,timeout = 3)
         time.sleep(random.randint(1, 2))
     except Exception , e:
         print e
