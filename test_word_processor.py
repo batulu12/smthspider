@@ -1,7 +1,7 @@
 from word_processor2 import wordprocess,command
 
 list = ['df','r','xyz','d','2','undo','test','redo','undo','undo'] #anwser ['df', 'r', 'xyz', 'test']
-list2 = ['first', 'second', 'third','d','fourth','undo','undo','redo']
+list2 = ['first', 'second', 'third','d','fourth','undo','undo','ddd','ttt','redo']
 def test(list):
     wp = wordprocess()
     for item in list:
